@@ -1,5 +1,3 @@
-
-
 // Paste your deployed Apps Script web app URL (ends in /exec):
 var API_URL='https://script.google.com/macros/s/AKfycbz6swbd02sJOYSDsiIsW_wIETcFeWxxojqs8fgZRCcP_VF2Za-M-2yXgSlOEznRcp3a/exec';
 (function(){
@@ -17,17 +15,18 @@ var iv=setInterval(tick,1000);tick();
 var f=$('#reg'),src=$('#source'),wrap=$('#otherWrap'),other=$('#other'),btn=$('#submit'),busy=false;
 src.onchange=function(){var o=src.value==='Other';wrap.hidden=!o;if(!o){other.value='';err('other','')}};
 function err(k,m){var e=$('#e-'+k),i=$('#'+k);e.textContent=m;if(i){m?i.setAttribute('aria-invalid','true'):i.removeAttribute('aria-invalid');if(m)i.setAttribute('aria-describedby','e-'+k);}}
-function read(){return{name:$('#name').value.trim(),email:$('#email').value.trim(),address:$('#address').value.trim(),church:$('#church').value.trim(),source:src.value,other:src.value==='Other'?other.value.trim():'',expectations:$('#expectations').value.trim(),privacy:$('#privacy').checked}}
+function read(){return{name:$('#name').value.trim(),email:$('#email').value.trim(),phone:$('#phone').value.trim(),address:$('#address').value.trim(),church:$('#church').value.trim(),source:src.value,other:src.value==='Other'?other.value.trim():'',expectations:$('#expectations').value.trim(),privacy:$('#privacy').checked}}
 function check(d){var bad={};
 if(!d.name)bad.name='Please enter your full name.';
 if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email))bad.email='Please enter a valid email address.';
+var dg=d.phone.replace(/\D/g,'');if(!/^[+0-9()\s-]+$/.test(d.phone)||dg.length<7||dg.length>15)bad.phone='Please enter a valid phone number.';
 if(!d.address)bad.address='Please enter your residential address.';
 if(!d.church)bad.church='Please enter the name of your church.';
 if(!d.source)bad.source='Please select an option.';
 if(d.source==='Other'&&!d.other)bad.other='Please specify how you heard about us.';
 if(!d.expectations)bad.expectations='Please share your expectations.';
 if(!d.privacy)bad.privacy='You must accept the privacy notice to register.';
-['name','email','address','church','source','other','expectations','privacy'].forEach(function(k){err(k,bad[k]||'')});
+['name','email','phone','address','church','source','other','expectations','privacy'].forEach(function(k){err(k,bad[k]||'')});
 var first=Object.keys(bad)[0];if(first){$('#'+first).focus();return false}return true}
 function fail(m){busy=false;btn.disabled=false;btn.textContent='REGISTER NOW';var a=$('#formErr');a.textContent=m;a.hidden=false;a.scrollIntoView({block:'center'})}
 f.addEventListener('submit',function(e){e.preventDefault();if(busy)return;$('#formErr').hidden=true;var d=read();if(!check(d))return;
@@ -38,7 +37,6 @@ fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'}
  if(!r||!r.ok){return fail((r&&r.error)||'Registration failed. Please try again.')}
  $('#sName').textContent=r.name;var sid=$('#sId');if(sid&&sid.parentNode)sid.parentNode.remove();
  $('#sMail').textContent=r.emailSent?'Please check your email for your confirmation (and your spam folder).':'Your registration was received, but we could not send your confirmation email at this moment.';
- var fl=$('#sFlyer');if(r.flyerUrl){fl.href=r.flyerUrl;fl.hidden=false}
- $('#formArea').hidden=true;var s=$('#success');s.hidden=false;s.focus();s.scrollIntoView();f.reset();busy=false;
+  $('#formArea').hidden=true;var s=$('#success');s.hidden=false;s.focus();s.scrollIntoView();f.reset();busy=false;
 }).catch(function(){clearTimeout(tm);if(done)return;fail('We could not reach the server. Your details are still in the form; please check your connection and try again. If you are unsure whether it went through, wait a minute before resubmitting.')})});
 })();
